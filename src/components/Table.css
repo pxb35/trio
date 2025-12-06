@@ -1,0 +1,109 @@
+
+.table .seat {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: .67rem;
+    box-sizing: border-box;
+    border: .1rem solid #ccc;
+    border-radius: .5rem;
+    margin: .67rem;   
+    background-color: #f0f0f0;
+}
+
+.table .left,
+.table .left-1,
+.table .left-2 {
+  rotate: 90deg
+}
+
+.table .right,
+.table .right-1,
+.table .right-2 {
+  rotate: 270deg
+}
+
+.game-table .active {
+    background-color: lightgoldenrodyellow;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    justify-self: anchor-center;
+}
+
+.game-card,
+.reveal-cards .game-card{
+    width: 3.5rem;
+    min-width: 3.5rem;
+    height: 5rem;
+    border: .1rem solid #ccc;
+    border-radius: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align:center;
+    margin: .5rem;
+    background-color: white;
+    box-shadow: 0 .2rem .5rem rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform .2s;
+}
+
+.reveal-cards {
+    align-content: center;
+}
+
+.game-card.selectable {
+    border-color: #cce3f7;
+    background-color: #f3f7fa;
+}  
+
+.game-card.selected {
+    border-color: #b4ffcd;
+    background-color: #ceffde;
+}  
+
+.game-card.overlap {
+    margin-right: -3.35rem;
+}
+
+.trioSet {
+    display: flex;
+    justify-content: center;
+}
+
+/*
+.leftSide {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+
+.vertical .game-card {
+    transform: rotate(90deg);
+}   
+
+.upper-row,
+.bottom-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+*/

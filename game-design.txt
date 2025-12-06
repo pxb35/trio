@@ -1,0 +1,54 @@
+Components
+
+- Table
+  - seats
+    - RevealCards
+    - for each player:
+        - PlayerHands
+        - cards
+        - PlayerTrios
+        - cards
+
+- CardDeck
+  - Cards
+
+- Sequence of Events
+  - create CardDeck
+  - shuffle CardDeck
+  - deal cards to PlayerHands
+  - select the starting player
+  - each player:
+    - asks players to reveal highest or lowest cards 
+      - or -
+    - turns over a card from RevealCards
+    - if a trio is found - that trio is displayed by the player
+      - or -
+    - cards are returned to their original location
+
+- Actions needed
+  - createDeck
+  - shufffleDeck
+  - dealCards
+  - revealCard
+  - sortHand
+  - revealPlayersCard
+     - revealHighest
+     - revealLowest
+  - revealCenter
+  - moveCard
+
+- Details
+  - per player control forgetfullness option
+  - set bot card view time
+
+  - take a turn
+   - mark selectable
+   - select first 2 Cards
+     - if they are not the same, put them back
+       --- or ---
+     - select a 3rd card
+       - if they are not the same, put them back
+         --- or ---
+       - mark a trio
+       - check for a win
+       
