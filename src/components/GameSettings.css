@@ -1,0 +1,57 @@
+
+.dropdown-container .main-dropdown {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+p.settings {
+    margin-bottom: .25rem;
+    font-weight: bold;
+}
+
+div.number-of-players.section {
+    margin-bottom: 2em;
+}
+
+.bi-gear {
+    color: white;
+    font-size: 2rem;
+}
+
+.settings-buttons,
+.game-buttons {
+    margin-bottom: 2rem;
+}
+
+.settings-buttons button,
+.game-buttons button {
+    margin-left: 1rem;
+}
+
+.version-date {
+    font-size: .8rem;
+}
+
+hr.hin-break {
+    margin: .5em 0;
+}
+
+.form-check-label {
+    margin-left: 1rem;
+}
+
+.reveal-card-check {
+    margin-bottom: 2rem;
+}
+.error-log {
+    opacity: 0;
+}
+
+.error-log pre {
+    text-wrap: auto;
+}
+
+.error-log-visible {
+    opacity: 1;
+}

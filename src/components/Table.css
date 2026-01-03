@@ -1,3 +1,7 @@
+#root .game-container {
+    padding: 0;
+}
+
 
 .table .seat {
     width: 100%;
@@ -26,6 +30,13 @@
   rotate: 270deg
 }
 
+.game-table {
+    width: 100%;
+    height: 100%;
+    background: darkslategray;
+    padding: .5rem;
+}   
+
 .game-table .active {
     background-color: lightgoldenrodyellow;
 }
@@ -35,19 +46,20 @@
     flex-wrap: wrap;
     justify-content: center;
     justify-self: anchor-center;
+    align-items: center;
 }
 
 .game-card,
 .reveal-cards .game-card{
-    width: 3.5rem;
-    min-width: 3.5rem;
-    height: 5rem;
+    width: 4.5rem;
+    min-width: 4.5rem;
+    height: 6rem;
     border: .1rem solid #ccc;
-    border-radius: .5rem;
+    border-radius: .4rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: bold;
     color: #333;
     text-align:center;
@@ -56,7 +68,49 @@
     box-shadow: 0 .2rem .5rem rgba(0, 0, 0, 0.1);
     position: relative;
     transition: transform .2s;
+    padding: 0;
 }
+
+.game-card img {
+    width: 100%;
+    height: 100%;
+    border-radius: .5rem;
+}
+
+reveal-cards-section {
+    margin: 3rem 0;
+}
+
+.reveal-cards .game-card.hidden {
+    opacity: 0.10;
+}
+
+.reveal-trio-cards-section .reveal-cards-section {
+    margin: 4rem 0;
+}
+
+.game-card .tmp {
+    position: absolute;
+    top: .2rem;
+    left: .2rem;
+    font-size: .8rem;
+    color: black;
+}
+.game-card.selectable:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}
+.game-card.selected {
+    box-shadow: 0 .4rem 1rem rgba(0, 0, 0, 0.2);
+}
+.game-card {
+    float: left;
+}
+
+.game-card.active-player {
+    border-color: gold;
+    box-shadow: 0 0 1.0rem gold;
+}   
 
 .reveal-cards {
     align-content: center;
@@ -73,12 +127,42 @@
 }  
 
 .game-card.overlap {
-    margin-right: -3.35rem;
+    margin-right: -3rem;
+}
+
+.trios-container.left,
+.trios-container.right {
+    justify-content: center;
+}
+
+.trios-container {
+    font-size: 0.8rem;
+}
+
+.trios.top,
+.trios.bottom {
+    min-height: 7rem;
+    height: 7rem;
+    width: 100%;
 }
 
 .trioSet {
-    display: flex;
-    justify-content: center;
+    display: block;
+    float: left;
+    width: fit-content;
+}
+
+.trioSet .game-card {
+    height: 4rem;
+    width: 3rem;
+    min-width: 3rem;;
+    font-size: 1.5rem;
+}
+
+.trios.bottom .trioSet,
+.trios.top .trioSet {
+    width: fit-content;
+    margin: 0 1.7rem;
 }
 
 /*

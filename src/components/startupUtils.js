@@ -1,17 +1,11 @@
-export function getSettings() {
-  return {
-    numPlayers: 2,
-    interactiveUserIndexes: [0]
-  };
-}
 
 export function createDeck() {
   let cardIndex = 0;
   let deck = [];
-  for (let i = 1; i <= 4; i++) {
-  //for (let i = 1; i <= 12; i++) {
+  //for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 12; i++) {
     for (let j = 1; j <= 3; j++) {
-      deck.push({ id: cardIndex, rank: i, color: j, revealedAtTurn: -1 });
+      deck.push({ id: cardIndex, rank: i, cardLocation: 'deck', revealedAtTurn: -1 });
       cardIndex++;
     }
   }
@@ -31,8 +25,8 @@ export function shuffleDeck(deck) {
 
 export function createPlayers(settings) {
   let players = [];
-  for (let i = 0; i < settings.numPlayers; i++) {
-    players.push({ id: i, name: `Player ${i + 1}`, type: (settings.interactiveUserIndexes.includes(i) ? 'human' : 'bot'), hand: [], trios: [] });
+  for (let i = 0; i < settings.playerCount; i++) {
+    players.push({ id: i, name: `Player ${i + 1}`, type: (settings.interactiveUserIndexes.includes(i) ? 'human' : 'bot'), hand: [], trios: [], forgetfullness: 0 });
   }
   return players;
 }
@@ -60,7 +54,7 @@ function getCardCount(numPlayers) {
       cardCount = 6;
       break;
     case 2:
-      cardCount = 6
+      cardCount = 5;
       break;
     case 3:
       cardCount = 9;
