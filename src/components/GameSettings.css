@@ -1,3 +1,11 @@
+.player-names.section input[type="number"] {
+    width: 2rem;
+    margin-left: 1rem;
+}   
+
+.player-names.section input[type="text"] {
+    width: 12rem;
+}  
 
 .dropdown-container .main-dropdown {
     position: absolute;
@@ -10,7 +18,9 @@ p.settings {
     font-weight: bold;
 }
 
-div.number-of-players.section {
+div.number-of-players.section,
+div.player-names.section,
+div.bot-card-display-time.section {
     margin-bottom: 2em;
 }
 

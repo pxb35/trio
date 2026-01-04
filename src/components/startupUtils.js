@@ -1,11 +1,15 @@
-
 export function createDeck() {
   let cardIndex = 0;
   let deck = [];
   //for (let i = 1; i <= 4; i++) {
   for (let i = 1; i <= 12; i++) {
     for (let j = 1; j <= 3; j++) {
-      deck.push({ id: cardIndex, rank: i, cardLocation: 'deck', revealedAtTurn: -1 });
+      deck.push({
+        id: cardIndex,
+        rank: i,
+        cardLocation: "deck",
+        revealedTime: -1,
+      });
       cardIndex++;
     }
   }
@@ -26,7 +30,15 @@ export function shuffleDeck(deck) {
 export function createPlayers(settings) {
   let players = [];
   for (let i = 0; i < settings.playerCount; i++) {
-    players.push({ id: i, name: `Player ${i + 1}`, type: (settings.interactiveUserIndexes.includes(i) ? 'human' : 'bot'), hand: [], trios: [], forgetfullness: 0 });
+    players.push({
+      id: i,
+      name: settings.playerNames[i],
+      winner: false,
+      type: settings.interactiveUserIndexes.includes(i) ? "human" : "bot",
+      hand: [],
+      trios: [],
+      forgetfullness: settings.playerForgetfullnesses[i],
+    });
   }
   return players;
 }

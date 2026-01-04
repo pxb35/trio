@@ -25,14 +25,8 @@ export default function GameSettings(params) {
   const handleSave = () => {
     const newSettings = {
       playerCount:    parseInt(playerOption.split('-')[1]),
-      playerName1:    playerName1,
-      playerName2:    playerName2,
-      playerName3:    playerName3,
-      playerName4:    playerName4,
-      playerForgetfullness1: playerForgetfullness1,
-      playerForgetfullness2: playerForgetfullness2,
-      playerForgetfullness3: playerForgetfullness3,
-      playerForgetfullness4: playerForgetfullness4,
+      playerNames:    playerNames,
+      playerForgetfullnesses: playerForgetfullnesses,
       cardDisplayTime: cardDisplayTime,
       interactiveUserIndexes: [0],
       newUser:        false,
@@ -44,15 +38,9 @@ export default function GameSettings(params) {
       const storedSettings = getSettings();
 
       const [playerOption, setPlayerOption] = useState('option-' + storedSettings.playerCount);
-      const [playerName1, setPlayerName1] = useState(storedSettings.playerName1);
-      const [playerName2, setPlayerName2] = useState(storedSettings.playerName2);
-      const [playerName3, setPlayerName3] = useState(storedSettings.playerName3);
-      const [playerName4, setPlayerName4] = useState(storedSettings.playerName4);
-      const [playerForgetfullness1, setPlayerForgetfullness1] = useState(storedSettings.playerForgetfullness1);
-      const [playerForgetfullness2, setPlayerForgetfullness2] = useState(storedSettings.playerForgetfullness2);
-      const [playerForgetfullness3, setPlayerForgetfullness3] = useState(storedSettings.playerForgetfullness3);
-      const [playerForgetfullness4, setPlayerForgetfullness4] = useState(storedSettings.playerForgetfullness4);
-      const [cardDisplayTime, setCardDisplayTime] = useState(storedSettings.cardDislayTime);
+      const [playerNames, setPlayerNames] = useState(storedSettings.playerNames);
+      const [playerForgetfullnesses, setPlayerForgetfullnesses] = useState(storedSettings.playerForgetfullnesses);
+      const [cardDisplayTime, setCardDisplayTime] = useState(storedSettings.cardDisplayTime);
       const [saved, setSaved] = useState(true);
 
       let showRulesSummary = false;
@@ -73,15 +61,12 @@ export default function GameSettings(params) {
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            <Dropdown.Item onClick={handleShow}>Settings</Dropdown.Item>
-            <Dropdown.Divider className='menu-divider'></Dropdown.Divider>
-            <Dropdown.Item onClick={() => params.handleNewRound(false)}>
-                New Round</Dropdown.Item>
-            <Dropdown.Item onClick={() => params.handleNewRound(true)}>
-                New Game</Dropdown.Item>
-            <Dropdown.Divider className='menu-divider'></Dropdown.Divider>
+            <Dropdown.Item onClick={handleShow}>
+              Settings</Dropdown.Item>
+            <Dropdown.Item onClick={() => params.newGame()}>
+              New Game</Dropdown.Item>
             <Dropdown.Item onClick={() => params.setShowRules(true)}>
-                Rules Summary</Dropdown.Item> 
+              Rules Summary</Dropdown.Item> 
           </Dropdown.Menu>
         </Dropdown>
         </div>
@@ -97,39 +82,40 @@ export default function GameSettings(params) {
                       onChange={(e) => {setPlayerOption(e.target.value); setSaved(false); } } />
                 <label className="btn" htmlFor="players-4">4</label>
               </div>
+
             <div className="player-names section">
-              <p className="settings label">Player Names & Forgetfullness</p>
+              <p className="settings label">Player Names & Forgetfullness (0-none,  100-complete)</p>
               
               <div className="input-group mb-3">
                   <span className="input-group-text" id="player-name-1">Player 1</span>
                   <input type="text" className="form-control" aria-label="Sizing example input" aria-describedby="player-name-1" 
-                          onChange={(e) => {setPlayerName1(e.target.value); setSaved(false); } } value={playerName1} />
+                          onChange={(e) => {setPlayerNames((prev) => [...prev.slice(0, 0), e.target.value, ...prev.slice(1)]); setSaved(false); } } value={playerNames[0]} />
                   <input type="number" className="form-control" aria-label="Sizing example input" aria-describedby="player-name-1" 
-                          onChange={(e) => {setPlayerForgetfullness1(e.target.value); setSaved(false); } } value={playerForgetfullness1} />
+                          onChange={(e) => {setPlayerForgetfullnesses((prev) => [...prev.slice(0, 0), e.target.value, ...prev.slice(1)]); setSaved(false); } } value={playerForgetfullnesses[0]} />
               </div>
 
               <div className="input-group mb-3">
                   <span className="input-group-text" id="player-name-2">Player 2</span>
                   <input type="text" className="form-control" aria-label="Sizing example input" aria-describedby="player-name-2" 
-                        onChange={(e) => {setPlayerName2(e.target.value); setSaved(false); } } value={playerName2} />
+                        onChange={(e) => {setPlayerNames((prev) => [...prev.slice(0, 1), e.target.value, ...prev.slice(2)]); setSaved(false); } } value={playerNames[1]} />
                   <input type="number" className="form-control" aria-label="Sizing example input" aria-describedby="player-name-2" 
-                          onChange={(e) => {setPlayerForgetfullness2(e.target.value); setSaved(false); } } value={playerForgetfullness2} />
+                          onChange={(e) => {setPlayerForgetfullnesses((prev) => [...prev.slice(0, 1), e.target.value, ...prev.slice(2)]); setSaved(false); } } value={playerForgetfullnesses[1]} />
               </div>
 
               <div className="input-group mb-3">
                   <span className="input-group-text" id="player-name-3">Player 3</span>
                   <input type="text" className="form-control" aria-label="Sizing example input" aria-describedby="player-name-2" 
-                        onChange={(e) => {setPlayerName3(e.target.value); setSaved(false); } } value={playerName3} />
+                        onChange={(e) => {setPlayerNames((prev) => [...prev.slice(0, 2), e.target.value, ...prev.slice(3)]); setSaved(false); } } value={playerNames[2]} />
                   <input type="number" className="form-control" aria-label="Sizing example input" aria-describedby="player-name-3" 
-                          onChange={(e) => {setPlayerForgetfullness3(e.target.value); setSaved(false); } } value={playerForgetfullness3} />
+                          onChange={(e) => {setPlayerForgetfullnesses((prev) => [...prev.slice(0, 2), e.target.value, ...prev.slice(3)]); setSaved(false); } } value={playerForgetfullnesses[2]} />
               </div>
 
               <div className="input-group mb-3">
                   <span className="input-group-text" id="player-name-4">Player 4</span>
                   <input type="text" className="form-control" aria-label="Sizing example input" aria-describedby="player-name-4" 
-                        onChange={(e) => {setPlayerName4(e.target.value); setSaved(false); } } value={playerName4} />
+                        onChange={(e) => {setPlayerNames((prev) => [...prev.slice(0, 3), e.target.value, ...prev.slice(4)]); setSaved(false); } } value={playerNames[3]} />
                   <input type="number" className="form-control" aria-label="Sizing example input" aria-describedby="player-name-4" 
-                          onChange={(e) => {setPlayerForgetfullness4(e.target.value); setSaved(false); } } value={playerForgetfullness4} />
+                          onChange={(e) => {setPlayerForgetfullnesses((prev) => [...prev.slice(0, 3), e.target.value, ...prev.slice(4)]); setSaved(false); } } value={playerForgetfullnesses[3]} />
               </div>
             </div>
 
@@ -152,7 +138,7 @@ export default function GameSettings(params) {
             </div>        
             <hr className="thin-break"></hr>
             <div className='version-date' onClick={() => handleToggleShowErrors() }>
-              Dec 1, 2025
+              January 4, 2026
             </div>
             <CrashLogViewer showErrors={showErrors} ></CrashLogViewer>
             </Offcanvas.Body>
@@ -167,17 +153,11 @@ export default function GameSettings(params) {
 
         const defaultSettings = {
             playerCount:    4,
-            playerName1:    "you",
-            playerName2:    "bot 1",
-            playerName3:    "bot 2",
-            playerName4:    "bot 3",
-            playerForgetfullness1: 0,
-            playerForgetfullness2: 0,
-            playerForgetfullness3: 0,
-            playerForgetfullness4: 0, 
+            playerNames:    ["you", "bot 1", "bot 2", "bot 3"],
+            playerForgetfullnesses: [0, 0, 0, 0],
             newUser:        true,
             interactiveUserIndexes: [0],
-            cardDislayTime: 2,
+            cardDisplayTime: 2,
             crashLogs: []
         }
 

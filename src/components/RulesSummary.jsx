@@ -28,14 +28,13 @@ const RulesSummary = (params) => {
             <p>After revealing a card:</p>
             <p>If the revealed card matches the previous one, you continue your turn to reveal another.</p>
             <p>If it doesn't match, return the cards and end your turn by clicking the cards you've selected.</p>
-            <p>If you reveal a third matching card, take the trio and place it face-up in front of you. Your turn ends.</p>
+            <p>If you reveal a third matching card, the trio will be placed face-up in front of your hand. Your turn ends.</p>
             <hr />
 
           <h4>Key Rules</h4>
             <p>Play passes to the player to the right even if a trio is created.</p>
             <p>You can ask for the same type of card (high/low) multiple times in a row from an opponent.</p>
             <p>The first player to collect three trios or the trio of 7s wins the game.</p>
-            <hr />
             
         </Modal.Body>
         <Modal.Footer>

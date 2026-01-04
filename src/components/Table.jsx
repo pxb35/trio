@@ -13,6 +13,7 @@ export default function Table() {
 
         <div className="game-table row justify-content-center align-items-center">
           <div className="card-container vertical col-1 seat left-side" >
+            <p className="players-name">{ctx.players[1].name}</p>
             {ctx.players[1].hand.map((card) => (
               <Card key={card.id} 
                     activePlayer={ctx.turnIndex === 1}
@@ -25,6 +26,7 @@ export default function Table() {
         </div>
         <div className="col-10 justify-content-center">
           <div className="row justify-content-center">
+            <p className="players-name">{ctx.players[2].name}</p>
             <div className="card-container horizontal col-12 seat top" >
               {ctx.players[2].hand.map((card) => (
                 <Card key={card.id} 
@@ -130,10 +132,12 @@ export default function Table() {
                       isTrio={false} />
                 ))}
               </div>
+              <p className="players-name">{ctx.players[0].name}</p>
             </div>
           </div>
           <div className="card-container vertical col-1 seat right-side" >
-            {ctx.players[3].hand.map((card) => (
+            <p className="players-name">{ctx.players[3].name}</p>
+              {ctx.players[3].hand.map((card) => (
               <Card key={card.id} 
                     activePlayer={ctx.turnIndex === 3}
                     card={card}

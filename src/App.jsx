@@ -29,6 +29,7 @@ function App() {
   const [showRules, setShowRules] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
+  const [holdUseEffects, setHoldUseEffects] = useState(false);
   
   const handleToggleShowErrors = () => {
     setShowErrors(!showErrors);
@@ -69,7 +70,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-
+    if (holdUseEffects) return;
+    if (gameOver) return;
     if (players.length === 0) return;
     if (selectedCards.length === 0) {
       nextPlayer();
@@ -79,7 +81,8 @@ function App() {
   }, [selectedCards]);
 
   useEffect(() => {
-
+    if (holdUseEffects) return;
+    if (gameOver) return;
     if (players.length === 0) return;
       
     if (players[turnIndex].type === 'bot') {
@@ -90,15 +93,19 @@ function App() {
       const currSettings = getSettings();
         
       if (selected.filter(c => c.rank !== selected[0].rank).length > 0) {
+        setHoldUseEffects(true);
         setTimeout(() => {
           setSelectedCards([]);
+          setHoldUseEffects(false);
           return;
         }, currSettings.cardDisplayTime * 1000);
       } else {
         if (selected.length  > 2) {
           moveCardsToPlayerTrio(turnIndex, selected);
+          setHoldUseEffects(true);
           setTimeout(() => {
             setSelectedCards([]);
+            setHoldUseEffects(false);
             return;
           }, currSettings.cardDisplayTime * 1000); 
         } else {
@@ -106,11 +113,12 @@ function App() {
           let cardOpts = getCardOptions();
           const countByRank = getCountByRank();
           const scoredCards = scoreCards(cardOpts, countByRank);
-          scoredCards[0].card.revealedAtTurn = Date.now();
+          scoredCards[0].card.revealedTime = Date.now();
           selected.push(scoredCards[0].card);
-
+          setHoldUseEffects(true);
           setTimeout(() => {
             setSelectedCards(selected);
+            setHoldUseEffects(false);
             return;
            }, currSettings.cardDisplayTime * 1000); 
         }
@@ -123,7 +131,8 @@ function App() {
 
   function getCountByRank() {
     // take a look at the reveal history to figure out what to pick
-    let cardsByRank = [];
+    let
+     cardsByRank = [];
     for (let i=1; i <= 12; i++) {
       cardsByRank[i] = [];
     }
@@ -132,8 +141,13 @@ function App() {
       if (handLen === 0) continue;
       for (let j=0; j < handLen; j++) {
         // only work with revealed cards
-        if (players[i].hand[j].revealedAtTurn > -1) {
-          cardsByRank[players[i].hand[j].rank].push(players[i].hand[j]);
+        if (players[i].hand[j].revealedTime > -1) {
+          // don't add blocked cards
+          if (j===0 || j=== handLen -1 || 
+                  (j===1 && players[i].hand[1].rank === players[i].hand[0].rank) || (j=== handLen -2 && players[i].hand[handLen-1].rank === players[i].hand[handLen-2].rank) ||
+                  (j===2 && players[i].hand[2].rank === players[i].hand[0].rank) || (j=== handLen -3 && players[i].hand[handLen-1].rank === players[i].hand[handLen-3].rank) ) {
+            cardsByRank[players[i].hand[j].rank].push(players[i].hand[j]);
+          } 
         } else if (i === turnIndex) {
           if (j === 0 || j === handLen - 1) {
             cardsByRank[players[i].hand[j].rank].push(players[i].hand[j]);
@@ -151,7 +165,7 @@ function App() {
     }
     // add the reveal cards
     for (let i=0; i < revealCards.length; i++) {
-      if (revealCards[i].id < 36 && revealCards[i].revealedAtTurn > -1) {
+      if (revealCards[i].id < 36 && revealCards[i].revealedTime > -1) {
         cardsByRank[revealCards[i].rank].push(revealCards[i]);
       }
     }
@@ -247,13 +261,15 @@ function App() {
   */
 
   function scoreCards (cardOptions, countByRank) {
+    console.log('Scoring card options: ', cardOptions);
+    console.log('Count by rank: ', countByRank);
     let scoredCards = [];
     for (let i=0; i < cardOptions.length; i++) {
       let conditions = '';
       let cardScore = 0;
       let locationParts = cardOptions[i].cardLocation.split('-');
       // if the card is one that we know about, we can use the rank in our scoring
-      if (cardOptions[i].revealedAtTurn > -1 || locationParts[0] === 'owner') {
+      if (cardOptions[i].revealedTime > -1 || locationParts[0] === 'owner') {
         conditions += ' known card';
         // if this is the first card being selected - check if it is member of a known trio
         if (selectedCards.length === 0) {
@@ -347,7 +363,7 @@ function App() {
       let cardScore = 0;
 
       // use card details if this card has been revealed or if it's from your hand
-      if (cardOptions[i].revealedAtTurn > -1 || players[turnIndex].hand.filter(c => c.id === cardOptions[i].id).length > 0) {
+      if (cardOptions[i].revealedTime > -1 || players[turnIndex].hand.filter(c => c.id === cardOptions[i].id).length > 0) {
 
         console.log('scoring known card: ', cardOptions[i]);
 
@@ -474,7 +490,7 @@ function App() {
       for (let i = 0; i < currPlayers.length; i++) {
         const idx = currPlayers[i].hand.findIndex(c => c.id === card.id);
         if (idx !== -1) {
-          currPlayers[i].hand[idx].revealedAtTurn = Date.now();
+          currPlayers[i].hand[idx].revealedTime = Date.now();
           setPlayers(currPlayers);
           break;
         }
@@ -484,7 +500,7 @@ function App() {
       const idx = revealCards.findIndex(c => c.id === card.id);
       if (idx !== -1) {
         let currRevealCards = [...revealCards];
-        currRevealCards[idx].revealedAtTurn = Date.now();
+        currRevealCards[idx].revealedTime = Date.now();
         setRevealCards(currRevealCards);
       } 
 
@@ -519,12 +535,15 @@ function App() {
   function moveCardsToPlayerTrio(playerIndx, trio) {
     let currPlayers = [...players];
     let currReveals = [...revealCards];
-    currPlayers[turnIndex].trios.push(trio);
+    currPlayers[playerIndx].trios.push(trio);
     const currSettings = getSettings();
 
-    if (trio[0].rank === 7 || currPlayers[turnIndex].trios.length === 3) {
+    if (trio[0].rank === 7 || currPlayers[playerIndx].trios.length === 3) {
+      currPlayers[playerIndx].winner = true;
+      setHoldUseEffects(true);
       setTimeout(() => {
-        announceWinner(turnIndex); 
+        announceWinner();
+        setHoldUseEffects(false);
         return;
       }, currSettings.cardDisplayTime * 1000);  
     }
@@ -543,7 +562,7 @@ function App() {
         if (idx !== -1) {
           // to keep the format, replace the card with a blank one
           //currReveals = currReveals.filter(c => c.id !== trio[h].id);
-          const blankCard = { id: 99-trio[h].id, rank: -1, color: -1, revealedAtTurnIndex: -1 };
+          const blankCard = { id: 99-trio[h].id, rank: -1, color: -1, revealedTimeIndex: -1 };
           currReveals = currReveals.toSpliced(idx, 1, blankCard);
         }
       }
@@ -558,6 +577,10 @@ function App() {
     const deck = createDeck();
     const shuffledDeck = shuffleDeck(deck);
     const playersWithCards = dealCards(shuffledDeck, players);
+    for (let i = 0; i < playersWithCards.length; i++) {
+      playersWithCards[i].trios = [];
+      playersWithCards[i].winner = false;
+    }
     const initRevealCards = getRevealCards(shuffledDeck, settings.playerCount);
     
     const playerIndex = Math.floor(Math.random() * players.length);
@@ -569,7 +592,7 @@ function App() {
     setSelectedCards([]);
   }
 
-  function announceWinner(playerIndx) {
+  function announceWinner() {
     setGameOver(true);   
   }   
      
@@ -630,15 +653,18 @@ if (players.length === 0) {
           />
         </div>
 
-        <GameSettings showRules={showRules}
-                          setShowRules={setShowRules}
+        <GameSettings showRules={showRules}  
+                      newGame={newGame} 
+                      showSettings={showSettings} 
+                      setShowSettings={setShowSettings}
+                      setShowRules={setShowRules}
                     />
 
         <RulesSummary setShowRules={setShowRules} showRules={showRules} />
         
         
         <div className={'game-over' + (gameOver ? ' popup-visible' : '')}>
-          <GameOverPopup gameOver={gameOver} newGame={newGame} onClose={handleClosePopup} players={players} turnIndex={turnIndex} ></GameOverPopup>
+          <GameOverPopup gameOver={gameOver} newGame={newGame} onClose={handleClosePopup}  ></GameOverPopup>
         </div>
 
       </UserContext.Provider>

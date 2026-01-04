@@ -2,6 +2,10 @@
     padding: 0;
 }
 
+#root .game-container .game-table {
+    padding: 0.5rem;
+    margin: 0;
+}
 
 .table .seat {
     width: 100%;
@@ -164,6 +168,13 @@ reveal-cards-section {
     width: fit-content;
     margin: 0 1.7rem;
 }
+
+.players-name {
+    color: white;
+    text-shadow: 0 0 5px black;
+    margin: 0;
+    text-align: center;
+}   
 
 /*
 .leftSide {
