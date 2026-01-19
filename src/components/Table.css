@@ -1,3 +1,15 @@
+/*
+:root {
+  --translate-x: 0px;
+  --translate-y: 0px;
+  --rotateX: 0deg;
+}
+
+.translate {
+  transform: translate(var(--translate-x), var(--translate-y)) rotate(var(--rotateX)) ;
+}
+*/
+
 #root .game-container {
     padding: 0;
 }
@@ -61,7 +73,6 @@
     border: .1rem solid #ccc;
     border-radius: .4rem;
     display: flex;
-    align-items: center;
     justify-content: center;
     font-size: 2.5rem;
     font-weight: bold;
@@ -71,8 +82,57 @@
     background-color: white;
     box-shadow: 0 .2rem .5rem rgba(0, 0, 0, 0.1);
     position: relative;
-    transition: transform .2s;
+    transition: transform 1s;
+    transform-origin: center;
     padding: 0;
+/*    backface-visibility: hidden;  */
+    transform-style: preserve-3d;
+    transform: translate(var(--translate-x), var(--translate-y)) rotate(var(--rotateX)) ;
+}
+
+.game-card .back,
+.game-card .front {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    background-color: white;   
+    align-content: center;
+}
+
+.game-card .front {
+    z-index: 1;
+    backface-visibility: hidden;  
+}
+
+.game-card.human.selected .front{
+    background-color:#cce3f7
+}
+
+.game-card.trio {
+    transform:rotateY(180deg);
+}
+
+.move-to-trio {
+    background-color: orange;
+    transition: transform 3s ease rotateX(720deg) --translateVal;
+}
+
+.game-card.trio.human {
+    transform:rotateY(0);
+}
+
+.game-card .back {
+    transform: rotateY(180deg);  
+}
+
+.game-card.selected.human {
+    transform: rotateY(360deg);
+}
+
+.game-card.selected {
+    transform: rotateY(180deg) perspective(30px);
 }
 
 .game-card img {
@@ -166,7 +226,7 @@ reveal-cards-section {
 .trios.bottom .trioSet,
 .trios.top .trioSet {
     width: fit-content;
-    margin: 0 1.7rem;
+    margin: 0;
 }
 
 .players-name {
@@ -175,6 +235,30 @@ reveal-cards-section {
     margin: 0;
     text-align: center;
 }   
+
+@keyframes dealCard2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(var(--dx), var(--dy)) scale(1.2);
+  } 
+  50% {
+    transform: translate(var(--dx), var(--dy)) scale(1.4);
+  } 
+  75% {
+    transform: translate(var(--dx), var(--dy)) scale(1.2);
+  } 
+  100% {
+    transform-origin: center;
+    transform: translate(var(--dx), var(--dy)) scale(1);
+  }
+}
+
+.sele {
+  transition: transform .1s ease;  /* was 0.5s  */
+  animation: dealCard2 .1s ease-out forwards; /* was 0.6s  */
+}
 
 /*
 .leftSide {

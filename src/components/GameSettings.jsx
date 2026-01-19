@@ -8,8 +8,8 @@ import "./GameSettings.css";
    
 export default function GameSettings(params) {
  
-  const handleRevealOptionChange = (event) => {
-     params.setRevealCardsIsChecked(event.target.checked);
+  const handleShowHandsChange = (event) => {
+     setShowHands(event.target.checked);
      handleSave();
   };
 
@@ -24,14 +24,16 @@ export default function GameSettings(params) {
   const handleShow = () => setShow(true);
   const handleSave = () => {
     const newSettings = {
-      playerCount:    parseInt(playerOption.split('-')[1]),
-      playerNames:    playerNames,
+      playerCount:            parseInt(playerOption.split('-')[1]),
+      playerNames:            playerNames,
       playerForgetfullnesses: playerForgetfullnesses,
-      cardDisplayTime: cardDisplayTime,
+      playerRecentWins,       playerRecentWins,
+      cardDisplayTime:        cardDisplayTime,
       interactiveUserIndexes: [0],
-      newUser:        false,
+      newUser:                false,
+      showHands:              showHands
     }
-    localStorage.setItem('settings', JSON.stringify(newSettings));
+    localStorage.setItem('trioSettings', JSON.stringify(newSettings));
     setSaved(true);
   }
 
@@ -40,7 +42,9 @@ export default function GameSettings(params) {
       const [playerOption, setPlayerOption] = useState('option-' + storedSettings.playerCount);
       const [playerNames, setPlayerNames] = useState(storedSettings.playerNames);
       const [playerForgetfullnesses, setPlayerForgetfullnesses] = useState(storedSettings.playerForgetfullnesses);
+      const [playerRecentWins, setPlayerRecentWins] = useState(storedSettings.playerRecentWins);
       const [cardDisplayTime, setCardDisplayTime] = useState(storedSettings.cardDisplayTime);
+      const [showHands, setShowHands] = useState(storedSettings.showHands);
       const [saved, setSaved] = useState(true);
 
       let showRulesSummary = false;
@@ -73,7 +77,7 @@ export default function GameSettings(params) {
 
           <Offcanvas show={show} onHide={handleClose}>
             <Offcanvas.Header closeButton>
-              <Offcanvas.Title>Game Settings</Offcanvas.Title>
+              <Offcanvas.Title>gameOv Settings</Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
               <div className="number-of-players section">
@@ -126,6 +130,21 @@ export default function GameSettings(params) {
                     value={cardDisplayTime} />
             </div>  
 
+            
+            <div className="reveal-card-check">
+              <p className="settings label">Cards</p>
+              <input className="form-check-input" 
+                    type="checkbox"   
+                    id="reveal-cards"
+                    checked={showHands}
+                    onChange={(e) => {handleShowHandsChange(e); setSaved(false); } }
+               />
+              <label className="form-check-label" htmlFor="reveal-cards" >
+                Reveal cards at the end of the round
+              </label>
+            </div>
+
+
             <div className="row justify-contents-left settings-buttons">
               <button className={"btn btn-primary col-3" + (saved ? " disabled " : " ")}
                           onClick={() => handleSave()}>
@@ -138,13 +157,17 @@ export default function GameSettings(params) {
             </div>        
             <hr className="thin-break"></hr>
             <div className='version-date' onClick={() => handleToggleShowErrors() }>
-              January 4, 2026
+              January 13, 2026
             </div>
             <CrashLogViewer showErrors={showErrors} ></CrashLogViewer>
             </Offcanvas.Body>
           </Offcanvas>
           </>
       );
+    }
+
+    export function saveSettings(settings) {
+      localStorage.setItem('trioSettings', JSON.stringify(settings));
     }
 
     export function getSettings() {
@@ -155,13 +178,15 @@ export default function GameSettings(params) {
             playerCount:    4,
             playerNames:    ["you", "bot 1", "bot 2", "bot 3"],
             playerForgetfullnesses: [0, 0, 0, 0],
+            playerRecentWins: [0, 0, 0, 0],
             newUser:        true,
             interactiveUserIndexes: [0],
             cardDisplayTime: 2,
+            showHands: false,
             crashLogs: []
         }
 
-        const storedSettings = localStorage.getItem('settings');
+        const storedSettings = localStorage.getItem('trioSettings');
         return storedSettings ? JSON.parse(storedSettings) : defaultSettings;
     }
 

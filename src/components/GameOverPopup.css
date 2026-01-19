@@ -2,3 +2,9 @@
 .button-group {
     display: flex;
 }
+
+.wins-table td,
+.wins-table th {
+    padding: .25rem 1.5rem;
+    text-align: center;
+} 

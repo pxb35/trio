@@ -1,16 +1,20 @@
 //import React from 'react';
 import './Table.css'
-import React, { useContext } from 'react';
+import React, { useContext, useRef, useEffect  } from 'react';
 import { UserContext } from '../App';
+import cardBack from '/trio-card-back.png';
+import Draggable, {DraggableCore} from 'react-draggable'; // Both at the same time
+import ReactDOM from "react-dom"
+
+import { TbIroningSteamOff } from 'react-icons/tb';
 
 const rowsBetweenCards = ['left', 'left-1', 'left-2', 'right', 'right-1', 'right-2'];
   
 export default function Table() {
-
+  
   const ctx = useContext(UserContext);
 
       return (
-
         <div className="game-table row justify-content-center align-items-center">
           <div className="card-container vertical col-1 seat left-side" >
             <p className="players-name">{ctx.players[1].name}</p>
@@ -41,33 +45,23 @@ export default function Table() {
             </div>
           </div>
           <div className="row">
-            <div className="trios-container col-2 trios left align-content-center">
+            <div className="trios-container col-2 trios left align-content-center player-1">
               {ctx.players[1].trios.map((triosSet, indx) => (
-                <div key={"left-" + indx.toString()} className="trioSet" >
-                  {triosSet.map((card, indx) => (
-                      <Card key={card.id} 
-                            activePlayer={ctx.turnIndex === 1}
-                            card={card}
-                            isHuman={ctx.players[1].type === 'human'}
-                            isTrio={true}
-                            overlap={indx === 2 ? false : true} />
-                  ))}
-                </div>
+                <TrioSet key={10 + indx}
+                          indx={indx}
+                          position='left'
+                          playerNum={1}
+                          triosSet={triosSet} />
               ))}
             </div>  
             <div className=" reveal-trio-cards-section col-8 trios center align-items-center">
-              <div className="row justify-content-center align-items-center trios-container trios top">
+              <div className="row justify-content-center align-items-center trios-container trios top player-2">
                 {ctx.players[2].trios.map((triosSet, indx) => (
-                <div key={"top-" + indx.toString()} className="trioSet" >
-                  {triosSet.map((card, indx) => (
-                      <Card key={card.id} 
-                            activePlayer={ctx.turnIndex === 2}
-                            card={card}
-                            isHuman={ctx.players[2].type === 'human'}
-                            isTrio={true}
-                            overlap={true} />
-                  ))}
-                </div>
+                <TrioSet key={20 + indx}
+                          indx={indx}
+                          position='top'
+                          playerNum={2}
+                          triosSet={triosSet} />
               ))}
               </div>
               <div className="row justify-content-center align-items-center reveal-cards-section">
@@ -90,33 +84,24 @@ export default function Table() {
                     )})}
                     </div>
               </div>
-              <div className="row justify-content-center align-items-center trios-container trios bottom">
+              <div className="row justify-content-center align-items-center trios-container trios bottom player-0">
                 {ctx.players[0].trios.map((triosSet, indx) => (
-                <div key={"bottom-" + indx.toString()} className="trioSet" >
-                  {triosSet.map((card, indx) => (
-                      <Card key={card.id} 
-                            activePlayer={ctx.turnIndex === 0}
-                            card={card}
-                            isHuman={ctx.players[0].type === 'human'}
-                            isTrio={true}
-                            overlap={true} />
-                  ))}
-                </div>
+                <TrioSet key={indx}
+                          indx={indx}
+                          position='bottom'
+                          playerNum={0}
+                          triosSet={triosSet} />
               ))}
               </div>
             </div>
-            <div className="trios-container col-2 trios right align-content-center">
+            <div className="trios-container col-2 trios right align-content-center player-3">
               {ctx.players[3].trios.map((triosSet, indx) => (
-                <div key={"right-" + indx.toString()} className="trioSet" >
-                  {triosSet.map((card, indx) => (
-                      <Card key={card.id} 
-                            activePlayer={ctx.turnIndex === 3}
-                            card={card}
-                            isHuman={ctx.players[3].type === 'human'}
-                            isTrio={true}
-                            overlap={indx === 2 ? false : true} />
-                  ))}
-                </div>
+                <TrioSet key={30 + indx}
+                          indx={indx}
+                          position='right'
+                          playerNum={3}
+                          triosSet={triosSet}
+                           />
               ))}  
             </div>
           </div>
@@ -147,18 +132,72 @@ export default function Table() {
                     isTrio={false} />
             ))}
         </div>
-        </div>
+        </div> 
       );
     }
 
-function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, activePlayer }) {
+function TrioSet ({position, indx, triosSet, playerNum}) {
+  
+  const ctx = useContext(UserContext);
+ /* 
+ const ref = useRef(); 
+
+  useEffect(() => {
+    onReady(ref.current, childIndex, grandIndex);
+  }, [])
+*/
+  return (
+    <div key={position + "-" + indx.toString()} className="trioSet" >
+      {triosSet.map((card, indx) => (
+          <Card key={card.id} 
+                activePlayer={ctx.turnIndex === playerNum}
+                card={card}
+                isHuman={ctx.players[playerNum].type === 'human'}
+                isTrio={true}
+                overlap={indx === 2 ? false : true} />
+      ))}
+    </div>
+  );
+}
+
+function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, activePlayer}) {
 
   const ctx = useContext(UserContext);
 
     //const cardClass = `game-card rank-${card.rank} }`;
+    // reverse the front and back if it's a human
+    if (isHuman) {
+      return (
+        <div className={'game-card'+ (isSelected ? ' selected' : '')  + (activePlayer ? ' active-player' : '') 
+                    + (isTrio ? ' trio' : '') + (isHuman ? ' human' : ' bot') + (card.id > 35 ? ' hidden' : '') + (overlap ? ' overlap' : '')} 
+                    id={'card-' + card.id} onClick={() => ctx.handleCardClick(card, isSelected)}>
+        <div className='back'>
+          <CardImage isHuman={isHuman} isTrio={isTrio} />
+        </div>
+        <div className='front'>
+          <span className="rank" >{card.rank}</span>
+        </div>
+      </div>
+      )
+    } else {
+    return (
+      <div className={'game-card'+ (isSelected ? ' selected' : '')  + (activePlayer ? ' active-player' : '')  
+                    + (isTrio ? ' trio' : '') + (isHuman ? ' human' : ' bot') + (card.id > 35 ? ' hidden' : '') + (overlap ? ' overlap' : '')} 
+                    id={'card-' + card.id} onClick={() => ctx.handleCardClick(card, isSelected)}>
+        <div className='front'>
+          <CardImage isHuman={isHuman} isTrio={isTrio} />
+        </div>
+        <div className='back'>
+          <span className="rank" >{card.rank}</span>
+        </div>
+      </div>
+    )
+  }
+    /*
     if (isSelected) {
         return (
-          <div className={'game-card selected' + (activePlayer ? ' active-player' : '') + (isHuman ? ' human' : ' bot') + (card.id > 35 ? ' hidden' : '')} id={'card-' + card.id} onClick={() => ctx.handleCardClick(card, isSelected)}>
+          <div className={'game-card selected' + (activePlayer ? ' active-player' : '') + (isHuman ? ' human' : ' bot') + (card.id > 35 ? ' hidden' : '')} 
+                    id={'card-' + card.id} onClick={() => ctx.handleCardClick(card, isSelected)}>
             <span className="rank" >{card.rank}</span>
         </div>
         );
@@ -182,13 +221,28 @@ function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, active
             );   
         }
     }
+    */
 }
 
-
 function CardImage({ isHuman, isTrio }) {
-    if (isHuman || isTrio) {
-        return '';
-    } else {
-        return <img src={isTrio ? '/trio-card-back.png' : '/trio-card-back.png'} />;
-    }   
+    //if (isHuman || isTrio) {
+    //    return '';
+    //} else {
+        return <img src={cardBack} />;
+    //}   
+    
+<img src={logo} />
+
+}
+
+function OutputWindow() {
+  return (
+    <Draggable>
+      <div className="output-window-content">
+        {/* Your output content goes here */}
+        <h3>Draggable Window</h3>
+        <p>This window can be moved around the screen.</p>
+      </div>
+    </Draggable>
+  );
 }
