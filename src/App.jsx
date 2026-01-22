@@ -817,13 +817,12 @@ function App() {
       setHoldUseEffects(true);
       
       moveTrioCardsTimer = setTimeout(() => {
-        gtag('event', 'games_completed', {
-        event_category: 'Games',
-        event_label: 'Games Completed',
-        value: 1
-      });
+        gtag('event', 'trio_games_completed', {
+          event_category: 'Trio Games',
+          event_label: 'Trio Games Completed',
+          value: 1
+        });
 
-      
         setHoldUseEffects(false);
         setGameOver(true);
         return;

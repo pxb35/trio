@@ -6,7 +6,15 @@ import cardBack from '/trio-card-back.png';
 import Draggable, {DraggableCore} from 'react-draggable'; // Both at the same time
 import ReactDOM from "react-dom"
 
-import { TbIroningSteamOff } from 'react-icons/tb';
+const modules = import.meta.glob("/picture*.png", { eager: true });
+
+const images = Object.entries(modules)
+  .sort(([a], [b]) => {
+    const numA = parseInt(a.match(/picture(\d+)\.png/)[1]);
+    const numB = parseInt(b.match(/picture(\d+)\.png/)[1]);
+    return numA - numB;
+  })
+  .map(([, mod]) => mod.default);
 
 const rowsBetweenCards = ['left', 'left-1', 'left-2', 'right', 'right-1', 'right-2'];
   
@@ -175,7 +183,7 @@ function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, active
           <CardImage isHuman={isHuman} isTrio={isTrio} />
         </div>
         <div className='front'>
-          <span className="rank" >{card.rank}</span>
+          <span className="rank" ><img src={images[card.rank]} /></span>
         </div>
       </div>
       )
@@ -188,7 +196,7 @@ function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, active
           <CardImage isHuman={isHuman} isTrio={isTrio} />
         </div>
         <div className='back'>
-          <span className="rank" >{card.rank}</span>
+          <span className="rank" ><img src={images[card.rank]} /></span>
         </div>
       </div>
     )
@@ -233,16 +241,4 @@ function CardImage({ isHuman, isTrio }) {
     
 <img src={logo} />
 
-}
-
-function OutputWindow() {
-  return (
-    <Draggable>
-      <div className="output-window-content">
-        {/* Your output content goes here */}
-        <h3>Draggable Window</h3>
-        <p>This window can be moved around the screen.</p>
-      </div>
-    </Draggable>
-  );
 }
