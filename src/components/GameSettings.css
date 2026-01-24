@@ -20,7 +20,8 @@ p.settings {
 
 div.number-of-players.section,
 div.player-names.section,
-div.bot-card-display-time.section {
+div.bot-card-display-time.section,
+div.images-instead-of-numbers.section {
     margin-bottom: 2em;
 }
 

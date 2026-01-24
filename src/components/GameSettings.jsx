@@ -29,6 +29,7 @@ export default function GameSettings(params) {
       playerForgetfullnesses: playerForgetfullnesses,
       playerRecentWins,       playerRecentWins,
       cardDisplayTime:        cardDisplayTime,
+      imagesInsteadOfNumbers: imagesInsteadOfNumbers,
       interactiveUserIndexes: [0],
       newUser:                false,
       showHands:              showHands
@@ -44,6 +45,7 @@ export default function GameSettings(params) {
       const [playerForgetfullnesses, setPlayerForgetfullnesses] = useState(storedSettings.playerForgetfullnesses);
       const [playerRecentWins, setPlayerRecentWins] = useState(storedSettings.playerRecentWins);
       const [cardDisplayTime, setCardDisplayTime] = useState(storedSettings.cardDisplayTime);
+      const [imagesInsteadOfNumbers, setImagesInsteadOfNumbers] = useState(storedSettings.imagesInsteadOfNumbers);
       const [showHands, setShowHands] = useState(storedSettings.showHands);
       const [saved, setSaved] = useState(true);
 
@@ -130,6 +132,17 @@ export default function GameSettings(params) {
                     value={cardDisplayTime} />
             </div>  
 
+            <div className="images-instead-of-numbers section">
+              <p className="settings label">Images Instead of Numbers</p>
+              <input type="checkbox" className="form-check-input" 
+                    id="images-instead-of-numbers"
+                    checked={imagesInsteadOfNumbers}
+                    onChange={(e) => {setImagesInsteadOfNumbers(e.target.checked); setSaved(false); } }
+               />
+               <label className="form-check-label" htmlFor="images-instead-of-numbers" >
+                Use pictures for cards instead of numbers
+              </label>
+            </div> 
             
             <div className="reveal-card-check">
               <p className="settings label">Cards</p>
@@ -182,6 +195,7 @@ export default function GameSettings(params) {
             newUser:        true,
             interactiveUserIndexes: [0],
             cardDisplayTime: 2,
+            imagesInsteadOfNumbers: false,
             showHands: false,
             crashLogs: []
         }

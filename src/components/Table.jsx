@@ -5,23 +5,24 @@ import { UserContext } from '../App';
 import cardBack from '/trio-card-back.png';
 import Draggable, {DraggableCore} from 'react-draggable'; // Both at the same time
 import ReactDOM from "react-dom"
+import GameSettings, { getSettings, saveSettings } from './GameSettings';
 
-const modules = import.meta.glob("/picture*.png", { eager: true });
+const modules = import.meta.glob("/Picture*.png", { eager: true });
 
 const images = Object.entries(modules)
   .sort(([a], [b]) => {
-    const numA = parseInt(a.match(/picture(\d+)\.png/)[1]);
-    const numB = parseInt(b.match(/picture(\d+)\.png/)[1]);
+    const numA = parseInt(a.match(/Picture(\d+)\.png/)[1]);
+    const numB = parseInt(b.match(/Picture(\d+)\.png/)[1]);
     return numA - numB;
   })
   .map(([, mod]) => mod.default);
 
-const rowsBetweenCards = ['left', 'left-1', 'left-2', 'right', 'right-1', 'right-2'];
+//const rowsBetweenCards = ['left', 'left-1', 'left-2', 'right', 'right-1', 'right-2'];
   
 export default function Table() {
   
   const ctx = useContext(UserContext);
-
+  
       return (
         <div className="game-table row justify-content-center align-items-center">
           <div className="card-container vertical col-1 seat left-side" >
@@ -171,6 +172,7 @@ function TrioSet ({position, indx, triosSet, playerNum}) {
 function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, activePlayer}) {
 
   const ctx = useContext(UserContext);
+  const currentSettings = getSettings();
 
     //const cardClass = `game-card rank-${card.rank} }`;
     // reverse the front and back if it's a human
@@ -182,8 +184,8 @@ function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, active
         <div className='back'>
           <CardImage isHuman={isHuman} isTrio={isTrio} />
         </div>
-        <div className='front'>
-          <span className="rank" ><img src={images[card.rank]} /></span>
+        <div className={'front' + (card.rank === 7 && currentSettings.imagesInsteadOfNumbers ? ' seven' : '')}>
+          <CardFront useImages={currentSettings.imagesInsteadOfNumbers} card={card} />
         </div>
       </div>
       )
@@ -195,8 +197,8 @@ function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, active
         <div className='front'>
           <CardImage isHuman={isHuman} isTrio={isTrio} />
         </div>
-        <div className='back'>
-          <span className="rank" ><img src={images[card.rank]} /></span>
+        <div className={'back' + (card.rank === 7 && currentSettings.imagesInsteadOfNumbers ? ' seven' : '')}>
+          <CardFront useImages={currentSettings.imagesInsteadOfNumbers} card={card} />
         </div>
       </div>
     )
@@ -231,6 +233,22 @@ function Card({ card, isSelectable, isSelected, isHuman, overlap, isTrio, active
     }
     */
 }
+
+function CardFront({ useImages, card }) {
+    if (useImages) {
+        return (
+          <>
+            <div className="rank-with-image">{card.rank}</div>
+            <div className="rank-image">
+              <img className="card-front-image" src={images[card.rank]} />
+          </div>
+        
+        </>
+        );
+    } else {
+        return <span className="rank">{card.rank}</span>;
+    }
+  }
 
 function CardImage({ isHuman, isTrio }) {
     //if (isHuman || isTrio) {

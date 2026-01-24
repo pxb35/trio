@@ -99,6 +99,7 @@
     position: absolute;
     background-color: white;   
     align-content: center;
+    justify-items: center;
 }
 
 .game-card .front {
@@ -135,13 +136,46 @@
     transform: rotateY(180deg) perspective(30px);
 }
 
+.item-rank-count {
+    width: 9px;
+    background-color: RED;
+    height: 8px;
+    margin: 1px;
+    float: left;
+}
+
+.rank-image img {
+    width: unset;
+    height: 80%;
+}
+
+.count-container {
+    width: 100%;
+}
+
+.col-2 img {
+    width: 100%;
+    height: auto;
+}
+
+.game-card .seven {
+    background-image: url('/stars.png');
+    background-size: .75em .75em;
+}
+
 .game-card img {
     width: 100%;
     height: 100%;
     border-radius: .5rem;
 }
 
-reveal-cards-section {
+img.card-front-image {
+    height: 80%;
+    width: 80%;
+    border-radius: .4rem;
+}
+
+.reveal-cards-section {
     margin: 3rem 0;
 }
 
@@ -235,6 +269,15 @@ reveal-cards-section {
     margin: 0;
     text-align: center;
 }   
+
+.rank-with-image {
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    font-size: 0.8rem;
+    color: black;
+    z-index: 2;
+}
 
 @keyframes dealCard2 {
   0% {
