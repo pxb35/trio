@@ -37,6 +37,8 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [holdUseEffects, setHoldUseEffects] = useState(false);
+  const [cardClickDisabled, setCardCClickDisabled] = useState(false);
+
   /*
   const triosIndex = -1;
 */
@@ -70,6 +72,7 @@ function App() {
     
     const playerIndex = Math.floor(Math.random() * initplayers.length); 
     
+    setCardCClickDisabled(false);
     setHoldUseEffects(false);
     setStartGame(false);
     setPlayers(playersWithCards); 
@@ -726,6 +729,10 @@ function App() {
    // ignore if it's not a human's turn
     if (players[turnIndex].type !== 'human') return;
 
+    // prevent double clicks
+    if (cardClickDisabled) return;
+    setCardCClickDisabled(true);
+
     let selected = [...selectedCards];
     if (!isSelected && isSelectable(card)) {
       selected.push(card);
@@ -769,10 +776,12 @@ function App() {
           moveTrioTimer = setTimeout(() => {
             setHoldUseEffects(false);
             moveCardsToPlayerTrio(turnIndex, selected);
+            setCardCClickDisabled(false);
             return;
           }, currSettings.cardDisplayTime * 1000); 
           
           //nextPlayer();
+          setCardCClickDisabled(false);
           return;
         } else {
           setReturnMode(true);
@@ -789,10 +798,12 @@ function App() {
         setReturnMode(false);
         setSelectedCards([]);
         //nextPlayer();
+        setCardCClickDisabled(false);
         return;
       }
     }
-    setSelectedCards(selected);  
+    setSelectedCards(selected);
+    setCardCClickDisabled(false);  
   }
 
   function moveCardsToPlayerTrio(playerIndx, trio) {
