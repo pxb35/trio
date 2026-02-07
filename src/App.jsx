@@ -10,7 +10,7 @@ import RulesSummary from './components/RulesSummary';
 import GameOverPopup from './components/GameOverPopup';
 import cardBackImage from '/trio-card-back.png'
 import { LuRabbit } from 'react-icons/lu';
-
+import ModelessWindow from "./components/ModelessWindow";
 export const UserContext = createContext();
 
 let numberOfPlayers = 4;
@@ -19,14 +19,14 @@ const turnDelay = 750;
 let noMatchTimer = null;
 let matchTimer = null;
 let trioTimer = null;
-let moveTrioTime = null;
+let moveTrioTimer = null;
 let moveTrioCardsTimer = null;
 
 function App() {
  
   const [players, setPlayers] = useState([]);
   const [revealCards, setRevealCards] = useState([]);
-  const [startGame, setStartGame] = useState(false);
+  const [startGame, setStartGame] = useState(true);
   const [settings, setSettings] = useState(getSettings());
   const [selectedCards, setSelectedCards] = useState([]);
   const [returnMode, setReturnMode] = useState(false);
@@ -38,6 +38,9 @@ function App() {
   const [showErrors, setShowErrors] = useState(false);
   const [holdUseEffects, setHoldUseEffects] = useState(false);
   const [cardClickDisabled, setCardCClickDisabled] = useState(false);
+  const [showWindow, setShowWindow] = useState(true);
+  const [windowZ, setWindowZ] = useState(1);
+  const [logText, setLogText] = useState("Starting up...");
 
   /*
   const triosIndex = -1;
@@ -74,7 +77,7 @@ function App() {
     
     setCardCClickDisabled(false);
     setHoldUseEffects(false);
-    setStartGame(false);
+    setStartGame(true);
     setPlayers(playersWithCards); 
     setRevealCards(initRevealCards);
     setTurnIndex(playerIndex);
@@ -83,33 +86,44 @@ function App() {
   }, []);
 
   useEffect(() => {
+
     if (holdUseEffects) return;
     if (gameOver) return;
-    if (players.length === 0) return;
+    
     if (selectedCards.length === 0) {
       if (startGame) {
-        setStartGame(false);
+        //addEvent(players[turnIndex].name + " starts the game!");
         samePlayer();
       } else {
         nextPlayer();
       }
     } else {
-      console.log("useEffect selectedCards. holdUseEffectss" + holdUseEffects.toString() + ' ' + players[turnIndex].type);
+      //log("useEffect selectedCards. holdUseEffectss" + holdUseEffects.toString() + ' ' + players[turnIndex].type);
       samePlayer();
     }
   }, [selectedCards]);
 
   useEffect(() => {
 
-    console.log('holdUseEffects: ', holdUseEffects);
+    if (players.length === 0) return; 
+
+    if (startGame) {
+      setStartGame(false);
+      setLogText(players[turnIndex].name + " goes first.");
+    }
+
+    console.log("turnCount & turnIndex: ", turnCount, turnIndex);
+    console.log("holdUseEffects / GameOver / Players.length / startGame: ", holdUseEffects, gameOver, players.length, startGame);
+    
     if (holdUseEffects) return;
     if (gameOver) return;
-    if (players.length === 0) return;
-      
+    if (startGame) {
+      setStartGame(false);
+      setLogText(players[turnIndex].name + " goes first.");
+    }
+
     if (players[turnIndex].type === 'bot') {
     
-     console.log ("Bot Turn ", turnIndex); 
-
       let selected = [...selectedCards];
       const currSettings = getSettings();
         
@@ -122,6 +136,7 @@ function App() {
         }, currSettings.cardDisplayTime * 1000);
       } else {
         if (selected.length  > 2) {
+          addEvent (players[turnIndex].name + " found a trio with " + selected[0].rank + "s!");
           animateMoveTrio(selected, turnIndex)
           setHoldUseEffects(true);
           trioTimer = setTimeout(() => {
@@ -137,17 +152,6 @@ function App() {
           scoredCards[0].card.revealedTime = Date.now();
           selected.push(scoredCards[0].card);
 
-          // flip the card visually - check if it's facedown
-          /*
-          const cardElement = document.getElementById('card-' + scoredCards[0].card.id);
-          if (cardElement) {
-            if (cardElement.classList.contains('selected')) {
-              flipCard(cardElement, '<img src="/trio/trio-card-back.png">');          
-            } else {
-              flipCard(cardElement, '<span className="rank">' + scoredCards[0].card.rank.toString() + '</span>');
-            }
-          }
-          */
           setHoldUseEffects(true);
           matchTimer = setTimeout(() => {
             setSelectedCards(selected);
@@ -158,76 +162,6 @@ function App() {
       }
     } 
   }, [turnCount]);
-
-/*
-  function getCountByRank() {
-    // take a look at the reveal history to figure out what to pick
-    let
-     cardsByRank = [];
-    for (let i=1; i <= 12; i++) {
-      cardsByRank[i] = [];
-    }
-    for (let i=0; i < players.length; i++) {
-      const handLen = players[i].hand.length;
-      if (handLen === 0) continue;
-      for (let j=0; j < handLen; j++) {
-        // only work with revealed cards
-        if (players[i].hand[j].revealedTime > -1 && Date.now() -players[i].hand[j].revealedTime < (100 - players[turnIndex].forgetfullness)/100 * 60000) {
-          // don't add blocked cards
-          if (j===0 || j=== handLen -1 || 
-                  (j===1 && players[i].hand[1].rank === players[i].hand[0].rank) || (j=== handLen -2 && players[i].hand[handLen-1].rank === players[i].hand[handLen-2].rank) ||
-                  (j===2 && players[i].hand[2].rank === players[i].hand[0].rank) || (j=== handLen -3 && players[i].hand[handLen-1].rank === players[i].hand[handLen-3].rank) ) {
-            cardsByRank[players[i].hand[j].rank].push(players[i].hand[j]);
-          } 
-        } else if (i === turnIndex) {
-          if (j === 0 || j === handLen - 1) {
-            cardsByRank[players[i].hand[j].rank].push(players[i].hand[j]);
-          } else if (handLen > 2) {
-            if ((j === 1 && players[i].hand[1].rank === players[i].hand[0].rank) || (j === handLen - 2 && players[i].hand[handLen-1].rank === players[i].hand[handLen-2].rank)) {
-              cardsByRank[players[i].hand[j].rank].push(players[i].hand[j]);
-            }
-          } else if (handLen > 3) {
-            if ((j === 2 && players[i].hand[2].rank === players[i].hand[0].rank) || (j === handLen - 3 && players[i].hand[handLen-1].rank === players[i].hand[handLen-3].rank)) {
-              cardsByRank[players[i].hand[j].rank].push(players[i].hand[j]);
-            }
-          }
-        }
-      }
-    }
-    // add the reveal cards
-    for (let i=0; i < revealCards.length; i++) {
-      if (revealCards[i].id < 36 && revealCards[i].revealedTime > -1 && Date.now() - revealCards[i].revealedTime < (100 - players[turnIndex].forgetfullness)/100 * 60000) {
-        cardsByRank[revealCards[i].rank].push(revealCards[i]);
-      }
-    }
-    //console.log('Cards by rank: ', cardsByRank);
-    return cardsByRank;
-  }
-*/
-/*
-  function getTriosByRank() {
-    // take a look at the reveal history to figure out what to pick
-      let triosByRank = [];
-      for (let i=1; i <= 12; i++) {
-        triosByRank[i] = false
-      }
-      for (let i=0; i < players.length; i++) {
-        for (let j=0; j < players[i].trios.length; j++) {
-          triosByRank[players[i].trios[j][0]] === true;
-        }
-      }
-      return triosByRank;
-  }
-*/
-/*
-  function highOrLow(highestRankIndex, lowestRankIndex,triosByRank) { 
-      // should we go high or low - count the non-trios
-      const above = triosByRank.filter((c, indx) => indx > highestRankIndex && c === false).length;
-      const below = triosByRank.filter((c, indx) => indx < lowestRankIndex && c === false).length;
-      if (above > below) return 'low';
-      else return 'high';
-  }
-*/
 
   function selectAll() {
   
@@ -362,7 +296,7 @@ function App() {
     viewedCards.sort((a,b) => a.rank - b.rank);
     for (let k=0; k<viewedCards.length;  k++) {
       if (cardOptions.filter(c => c.id === viewedCards[k].id).length === 0 && !viewedCards[k].blocked) {
-        console.log('missing card option: ', viewedCards[k]);
+        //console.log('missing card option: ', viewedCards[k]);
       }
     }
     for (let i=1; i <= 12; i++) {
@@ -372,10 +306,10 @@ function App() {
       cardsByRank[viewedCards[i].rank].push(viewedCards[i]);
     }
 
-    console.log('selected: ', selectedCards);
-    console.log('card options: ', cardOptions);
-    console.log('viewed cards: ', viewedCards);
-    console.log('ranked cards: ', cardsByRank);
+    //console.log('selected: ', selectedCards);
+    //console.log('card options: ', cardOptions);
+    //console.log('viewed cards: ', viewedCards);
+    //console.log('ranked cards: ', cardsByRank);
 
     return {    options : cardOptions,
                 viewed : viewedCards,
@@ -597,7 +531,7 @@ function App() {
     }
     const mixedscoredCards = scoredCards.sort((a, b) => b.score - a.score);
 
-    console.log('scored cards: ', mixedscoredCards);
+    //console.log('scored cards: ', mixedscoredCards);
     return mixedscoredCards
   }
 
@@ -714,13 +648,14 @@ function App() {
     const newTurnIndex = (turnIndex + 1) % players.length;
     setTurnIndex(newTurnIndex);
     setTurnCount(newTurnIndex);
-    console.log('next - newTurnIndex & newTurnCount: ', newTurnIndex);
+    //console.log('next - newTurnIndex & newTurnCount: ', newTurnIndex);
+    addEvent(players[newTurnIndex].name + "'s turn.");
   }
 
   function samePlayer() {
     setTurnCount(turnCount + .1);
     //console.log('turnIndex: ', turnIndex);
-    console.log('same - turnCount: ', turnCount + .1);
+    //console.log('same - turnCount: ', turnCount + .1);
   }
 
   ///////////////////  /////////////////////
@@ -728,6 +663,17 @@ function App() {
 
    // ignore if it's not a human's turn
     if (players[turnIndex].type !== 'human') return;
+
+    // ignore if the card is blocked
+    
+    if (!isSelectable(card) && !isSelected) {
+      if (returnMode) {
+        addEvent('You must click the cards you selected to turn them back over.');
+      } else {
+        addEvent('This card cannot be selected.');
+      }
+      return;
+    }
 
     // prevent double clicks
     if (cardClickDisabled) return;
@@ -772,6 +718,8 @@ function App() {
           const currSettings = getSettings();
       
           animateMoveTrio (selected, turnIndex);
+          addEvent (players[turnIndex].name + " found a trio with " + selected[0].rank + "s!");
+          
           setHoldUseEffects(true);
           moveTrioTimer = setTimeout(() => {
             setHoldUseEffects(false);
@@ -814,6 +762,7 @@ function App() {
 
     if (trio[0].rank === 7 || currPlayers[playerIndx].trios.length === 3) {
       currPlayers[playerIndx].winner = true;
+      addEvent (players[playerIndx].name + " wins the game!");
       
       // increment win count for winner 
       const currSettings = getSettings();
@@ -867,24 +816,25 @@ function App() {
 
   function newGame() {
     ////////////////////////
-
     setStartGame(true);
     setHoldUseEffects(true);    
     handleClosePopup();
-
+  
     // cancel all timers
     clearTimeout(noMatchTimer);
     clearTimeout(matchTimer);
     clearTimeout(trioTimer);
-    clearTimeout(moveTrioTime);
+    clearTimeout(moveTrioTimer);
     clearTimeout(moveTrioCardsTimer);
 
     noMatchTimer = null;
     matchTimer = null;
     trioTimer = null;
-    moveTrioTime = null;
+    moveTrioTimer = null;
     moveTrioCardsTimer = null;
-
+    
+    //const initSettings = getSettings();
+    
     const initSettings = getSettings();
     if (initSettings) {
       numberOfPlayers = initSettings.playerCount;
@@ -894,24 +844,22 @@ function App() {
         localStorage.setItem('trioSettings', JSON.stringify(initSettings));
       }
     }
-    
-    //const initSettings = getSettings();
+
     const deck = createDeck();
     const shuffledDeck = shuffleDeck(deck);
     const initplayers = createPlayers(initSettings);
     const playersWithCards = dealCards(shuffledDeck, initplayers);
     const initRevealCards = getRevealCards(shuffledDeck, initSettings.playerCount);
     
-    const playerIndex = Math.floor(Math.random() * initplayers.length); 
-    
     setGameOver(false);
     setPlayers(playersWithCards); 
     setRevealCards(initRevealCards);
-    setTurnIndex(playerIndex);
-    setTurnCount(playerIndex);
     setHoldUseEffects(false);
     setSelectedCards([]);
-
+    
+    const playerIndex = Math.floor(Math.random() * initSettings.playerCount); 
+    setTurnIndex(playerIndex);
+    setTurnCount(playerIndex);
     
     /////////////////
     /*
@@ -942,11 +890,11 @@ function App() {
   function announceWinner() {
     setGameOver(true);   
   }   
-  */   
+  
   function gameLog(msg) {
       console.log(msg);
   }
-
+*/
   function isSelectable(card) {
     
    // see if it's already selected
@@ -1087,100 +1035,21 @@ function animateMoveTrioOld(trio, playerIndex) {
 
     //console.log('done');
   }
-    /*
-    const cardAnimation = trio[i].animate(
-      [
-        {
-          opacity: 1,
-          scale: 1,
-        },
-        {
-          opacity: 1,
-          scale: 1,
-        },
-        {
-          opacity: 1,
-          scale: 0.9,
-        },
-        {
-          opacity: 1,
-          scale: 0.8,
-        },
-        {
-          opacity: 1,
-          scale: 0.75,
-        },
-        {
-          opacity: 1,
-          scale: 0.7,
-        },
-        {
-          opacity: 1,
-          scale: 0.65,
-        },
-        {
-          opacity: 1,
-          scale: 0.6,
-        },
-        {
-          opacity: 0.75,
-          scale: 0.55,
-        },
-        {
-          opacity: 0.25,
-          scale: 0.5,
-        },
-        {
-          translate: targetX + " " + targetY,
-          opacity: 0,
-        },
-      ],
-      {
-        duration: 1500,
-        delay: (i * 500) / trio.length,
-        easing: "ease-in-out",
-        fill: "forwards",
-        direction: "normal",
-      }
-    );
-  }
-    */
 }
 
-/*
-useEffect(() => {
-  const observer = new MutationObserver(() => {
-    const el = document.querySelector('.trioSet');
-    if (el) {
-      observer.disconnect();
-      runMyRoutine(el);
-    }
-  });
-
-  observer.observe(document.body, { childList: true, subtree: true });
-}, []);
-*/
-
-/*
-function flipCard(element, frontOrBackHtml) {
-  const animation = element.animate(
-    [
-      { transform: "rotateY(0deg)", easing: "ease-in" },
-      { transform: "rotateY(90deg)" },   // halfway point
-      { transform: "rotateY(180deg)", easing: "ease-out" }
-    ],
-    {
-      duration: 500,
-      fill: "forwards"
-    }
-  );
-  // Swap content at the halfway point
-  animation.onfinish = () => {
-    element.style.transform = "rotateY(0deg)";
-    element.innerHTML = frontOrBackHtml;
+  function addEvent(msg) {
+    //setLogText(prev => prev + '\n' + msg);
+    const logElement = document.getElementById('event-log');
+    if (logElement) {
+      setLogText(prev => prev + '\n');
+      for (let i=0; i<msg.length; i++) {
+        setTimeout(() => {
+          setLogText(prev => prev + msg.charAt(i));
+          logElement.scrollTop = logElement.scrollHeight;
+        }, i * 20);
+      } 
   }
-}
-  */
+  }
 
 if (players.length === 0) {
   return (
@@ -1208,6 +1077,7 @@ if (players.length === 0) {
                       showSettings={showSettings} 
                       setShowSettings={setShowSettings}
                       setShowRules={setShowRules}
+                      setShowWindow={setShowWindow}
                       />
 
         <RulesSummary setShowRules={setShowRules} showRules={showRules} />
@@ -1217,11 +1087,31 @@ if (players.length === 0) {
           <GameOverPopup gameOver={gameOver} setGameOver={setGameOver} newGame={newGame} onClose={handleClosePopup}  ></GameOverPopup>
         </div>
 
+ <div id="top-level" style={{ position: "relative", zIndex: 0 }}>
+      <button onClick={() => addEvent("Event fired!")}>Trigger Event</button>
+
+      {showWindow && (
+        <ModelessWindow
+          zIndex={windowZ}
+          onFocus={() => setWindowZ(1)}
+          saveSettings={saveSettings}
+          getSettings={getSettings}
+          onClose={() => {
+            setShowWindow(false);
+            const currSettings = getSettings();
+            currSettings.showLogWindow = false;
+            saveSettings(currSettings);
+          }
+        }>
+          <pre style={{ whiteSpace: "pre-wrap" }}>{logText}</pre>
+        </ModelessWindow>
+      )}
+    </div>
+
       </UserContext.Provider>
 
     );
   }
 }
-
 
 export default App;

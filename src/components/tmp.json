@@ -1,0 +1,10 @@
+{
+  "playerCount": 4,
+  "playerNames": ["human", "bot 1", "bot 2", "bot 3"],
+  "playerForgetfullnesses": [0, 0, 0, 0],
+  "playerRecentWins": [0, 0, 0, 0],
+  "cardDisplayTime": 2,
+  "interactiveUserIndexes": [0],
+  "newUser": false,
+  "showHands": true
+}

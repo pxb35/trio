@@ -13,6 +13,11 @@ export default function GameSettings(params) {
      handleSave();
   };
 
+  const handleShowEventLogChange = (event) => {
+     setShowEventLog(event.target.checked);
+     handleSave();
+  };
+
   const [show, setShow] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   
@@ -27,12 +32,14 @@ export default function GameSettings(params) {
       playerCount:            parseInt(playerOption.split('-')[1]),
       playerNames:            playerNames,
       playerForgetfullnesses: playerForgetfullnesses,
-      playerRecentWins,       playerRecentWins,
+      playerRecentWins:       playerRecentWins,
       cardDisplayTime:        cardDisplayTime,
       imagesInsteadOfNumbers: imagesInsteadOfNumbers,
       interactiveUserIndexes: [0],
       newUser:                false,
-      showHands:              showHands
+      showHands:              showHands,
+      showEventLog:           showEventLog,
+      eventLogPositions:      getSettings().eventLogPositions || {x: 100, y: 100, w: 300, h: 400}
     }
     localStorage.setItem('trioSettings', JSON.stringify(newSettings));
     setSaved(true);
@@ -47,6 +54,7 @@ export default function GameSettings(params) {
       const [cardDisplayTime, setCardDisplayTime] = useState(storedSettings.cardDisplayTime);
       const [imagesInsteadOfNumbers, setImagesInsteadOfNumbers] = useState(storedSettings.imagesInsteadOfNumbers);
       const [showHands, setShowHands] = useState(storedSettings.showHands);
+      const [showEventLog, setShowEventLog] = useState(true);
       const [saved, setSaved] = useState(true);
 
       let showRulesSummary = false;
@@ -79,7 +87,7 @@ export default function GameSettings(params) {
 
           <Offcanvas show={show} onHide={handleClose}>
             <Offcanvas.Header closeButton>
-              <Offcanvas.Title>gameOv Settings</Offcanvas.Title>
+              <Offcanvas.Title>Game Settings</Offcanvas.Title>
             </Offcanvas.Header>
             <Offcanvas.Body>
               <div className="number-of-players section">
@@ -132,8 +140,9 @@ export default function GameSettings(params) {
                     value={cardDisplayTime} />
             </div>  
 
-            <div className="images-instead-of-numbers section">
-              <p className="settings label">Images Instead of Numbers</p>
+            <div className="card-play section">
+              <p className="settings label">Card Play Settings</p>
+              <p></p>
               <input type="checkbox" className="form-check-input" 
                     id="images-instead-of-numbers"
                     checked={imagesInsteadOfNumbers}
@@ -142,10 +151,8 @@ export default function GameSettings(params) {
                <label className="form-check-label" htmlFor="images-instead-of-numbers" >
                 Use pictures for cards instead of numbers
               </label>
-            </div> 
-            
-            <div className="reveal-card-check">
-              <p className="settings label">Cards</p>
+           
+              <p></p>
               <input className="form-check-input" 
                     type="checkbox"   
                     id="reveal-cards"
@@ -155,12 +162,26 @@ export default function GameSettings(params) {
               <label className="form-check-label" htmlFor="reveal-cards" >
                 Reveal cards at the end of the round
               </label>
+            
+              <p></p>
+              <input className="form-check-input" 
+                    type="checkbox"   
+                    id="show-event-window"
+                    checked={showEventLog}
+                    onChange={(e) => {handleShowEventLogChange(e); setSaved(false); } }
+               />
+              <label className="form-check-label" htmlFor="show-event-window" >
+                Show event window 
+              </label>
             </div>
-
 
             <div className="row justify-contents-left settings-buttons">
               <button className={"btn btn-primary col-3" + (saved ? " disabled " : " ")}
-                          onClick={() => handleSave()}>
+                          onClick={() => {
+                            handleSave();
+                            const settings = getSettings();
+                            params.setShowWindow(settings.showEventLog);
+                          }}>
                       {"save" + (saved ? "d" : "")}
               </button>
               <button className="btn btn-primary col-3"
@@ -170,7 +191,7 @@ export default function GameSettings(params) {
             </div>        
             <hr className="thin-break"></hr>
             <div className='version-date' onClick={() => handleToggleShowErrors() }>
-              January 13, 2026
+              February 5, 2026
             </div>
             <CrashLogViewer showErrors={showErrors} ></CrashLogViewer>
             </Offcanvas.Body>
@@ -189,7 +210,7 @@ export default function GameSettings(params) {
 
         const defaultSettings = {
             playerCount:    4,
-            playerNames:    ["you", "bot 1", "bot 2", "bot 3"],
+            playerNames:    ["human", "bot 1", "bot 2", "bot 3"],
             playerForgetfullnesses: [0, 0, 0, 0],
             playerRecentWins: [0, 0, 0, 0],
             newUser:        true,
@@ -197,11 +218,24 @@ export default function GameSettings(params) {
             cardDisplayTime: 2,
             imagesInsteadOfNumbers: false,
             showHands: false,
+            showEventLog: true, 
+            eventLogPositions: {x: 100, y: 100, w: 300, h: 400},  
             crashLogs: []
         }
 
-        const storedSettings = localStorage.getItem('trioSettings');
-        return storedSettings ? JSON.parse(storedSettings) : defaultSettings;
+        const storedSettingsJSON = localStorage.getItem('trioSettings');
+        const storedSettings = storedSettingsJSON ? JSON.parse(storedSettingsJSON) : null;
+        let settingsComplete = true;
+        for (const [key, value] of Object.entries(defaultSettings)) {
+          if (storedSettings && !storedSettings.hasOwnProperty(key)) {
+            settingsComplete = false;
+            storedSettings[key] = value;
+          } 
+        }
+        if (!settingsComplete) {
+          saveSettings(storedSettings);
+        }
+        return storedSettings ? storedSettings : defaultSettings;
     }
 
     function CrashLogViewer(params) {
