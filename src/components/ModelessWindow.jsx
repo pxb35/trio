@@ -8,17 +8,33 @@ export default function ModelessWindow({ children, zIndex, onFocus, onClose, sav
   
   const windowRef = useRef(null);
   const dragOffset = useRef({ x: 0, y: 0 });
+  const resizeState = useRef(null);
   const resizing = useRef(false);
 
   // DRAGGING
   function startDrag(e) {
+    e.preventDefault();
     onFocus();
+
+    windowRef.current.setPointerCapture(e.pointerId);
+
+    document.body.style.userSelect = "none";
+
     dragOffset.current = {
       x: e.clientX - pos.x,
       y: e.clientY - pos.y
     };
+
     window.addEventListener("pointermove", drag);
     window.addEventListener("pointerup", stopDrag);
+  }
+
+  function stopDrag(e) {
+    windowRef.current.releasePointerCapture(e.pointerId);
+    document.body.style.userSelect = "";
+
+    window.removeEventListener("pointermove", drag);
+    window.removeEventListener("pointerup", stopDrag);
   }
 
   function drag(e) {
@@ -28,37 +44,51 @@ export default function ModelessWindow({ children, zIndex, onFocus, onClose, sav
     });
   }
 
-  function stopDrag() {
-    window.removeEventListener("pointermove", drag);
-    window.removeEventListener("pointerup", stopDrag);
-    const currentSettings = getSettings();
-    currentSettings.eventLogPositions = {x: pos.x, y: pos.y, w: size.w, h: size.h};
-    saveSettings(currentSettings);
-  }
-
   // RESIZING
   function startResize(e) {
+    e.preventDefault();
     onFocus();
-    resizing.current = { startX: e.clientX, startY: e.clientY, startW: size.w, startH: size.h };
+
+    // Capture the pointer so only this finger controls the resize
+    windowRef.current.setPointerCapture(e.pointerId);
+
+    // Prevent text selection during resize
+    document.body.style.userSelect = "none";
+
+    resizeState.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startW: size.w,
+      startH: size.h
+    };
+
     window.addEventListener("pointermove", resize);
     window.addEventListener("pointerup", stopResize);
   }
 
   function resize(e) {
-    const dx = e.clientX - resizing.current.startX;
-    const dy = e.clientY - resizing.current.startY;
+    // Ignore other fingers
+    if (e.pointerId !== resizeState.current.pointerId) return;
+
+    const dx = e.clientX - resizeState.current.startX;
+    const dy = e.clientY - resizeState.current.startY;
+
     setSize({
-      w: Math.max(150, resizing.current.startW + dx),
-      h: Math.max(100, resizing.current.startH + dy)
+      w: Math.max(150, resizeState.current.startW + dx),
+      h: Math.max(100, resizeState.current.startH + dy)
     });
   }
 
-  function stopResize() {
+  function stopResize(e) {
+    if (resizeState.current?.pointerId === e.pointerId) {
+      windowRef.current.releasePointerCapture(e.pointerId);
+    }
+
+    document.body.style.userSelect = "";
+
     window.removeEventListener("pointermove", resize);
     window.removeEventListener("pointerup", stopResize);
-    const currentSettings = getSettings();
-    currentSettings.eventLogPositions = {x: pos.x, y: pos.y, w: size.w, h: size.h};
-    saveSettings(currentSettings);
   }
 
   return createPortal(
@@ -90,7 +120,8 @@ export default function ModelessWindow({ children, zIndex, onFocus, onClose, sav
           userSelect: "none",
           display: "flex",
           justifyContent: "space-between",
-           borderBottom: "1px solid gray"
+           borderBottom: "1px solid gray",
+           touchAction: "none"
         }}
         onPointerDown={startDrag}
       >

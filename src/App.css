@@ -29,6 +29,7 @@
   }
 }
 
+@media (pointer: coarse) { .resize-handle { width: 28px; height: 28px; } }
 html, body,
 #root {
   width: 100%;
